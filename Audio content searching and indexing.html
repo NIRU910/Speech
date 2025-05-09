@@ -1,0 +1,44 @@
+let transcript = '';
+const startBtn = document.getElementById('startBtn');
+const transcriptOutput = document.getElementById('transcriptOutput');
+const searchResults = document.getElementById('searchResults');
+const searchBox = document.getElementById('searchBox');
+
+startBtn.addEventListener('click', startRecognition);
+searchBox.addEventListener('input', searchTranscript);
+
+function startRecognition() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    alert("Your browser does not support Web Speech API");
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = 'en-US';
+  recognition.continuous = true;
+  recognition.interimResults = true;
+
+  recognition.onresult = (event) => {
+    transcript = '';
+    for (let i = event.resultIndex; i < event.results.length; ++i) {
+      transcript += event.results[i][0].transcript;
+    }
+    transcriptOutput.innerText = transcript;
+  };
+
+  recognition.onerror = (event) => {
+    console.error('Speech recognition error:', event.error);
+  };
+
+  recognition.start();
+}
+
+function searchTranscript() {
+  const query = searchBox.value.toLowerCase();
+  const found = transcript.toLowerCase().includes(query);
+
+  searchResults.innerText = found
+    ? `✅ Found "${query}" in transcript.`
+    : `❌ "${query}" not found in transcript.`;
+}
